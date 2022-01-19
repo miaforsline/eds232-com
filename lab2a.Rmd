@@ -1,0 +1,48 @@
+---
+title: "Lab 2a: Community - Cluster"
+author: "Mia Forsline"
+date: "2021-01-31"
+output: 
+  html_document:
+    theme: flatly
+    code_folding: show
+    toc: true
+    toc_float: true
+    number_sections: true 
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      message = FALSE, 
+                      warning = FALSE, 
+                      include = TRUE,
+                      quiet = TRUE)
+```
+
+# Learning Objectives 
+
+# Clustering 
+- an unsupervised learning technique 
+
+## K-Means Clustering 
+
+### Load and plot the `iris` dataset 
+```{r}
+# load R packages
+librarian::shelf(
+  dplyr, DT, ggplot2, tibble)
+
+# set seed for reproducible results
+set.seed(42)
+
+# load the dataset
+data("iris")
+
+# look at documentation in RStudio
+if (interactive())
+  help(iris)
+
+# show data table
+datatable(iris)
+```
+
