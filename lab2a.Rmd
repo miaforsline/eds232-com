@@ -32,6 +32,10 @@ knitr::opts_chunk$set(echo = TRUE,
 librarian::shelf(
   dplyr, DT, ggplot2, tibble)
 
+librarian::shelf(ggvoronoi, scales)
+librarian::shelf(
+  cluster, vegan)
+
 # set seed for reproducible results
 set.seed(42)
 
@@ -44,5 +48,123 @@ if (interactive())
 
 # show data table
 datatable(iris)
+```
+
+```{r}
+# plot petal length vs width, species naive
+ggplot(
+  iris, aes(Petal.Length, Petal.Width)) +
+  geom_point()
+```
+
+```{r}
+# plot petal length vs width, color by species
+legend_pos <- theme(
+    legend.position = c(0.95, 0.05),
+    legend.justification = c("right", "bottom"),
+    legend.box.just = "right")
+ggplot(
+  iris, aes(Petal.Length, Petal.Width, color = Species)) +
+  geom_point() +
+  legend_pos
+```
+
+### Cluster `iris` using `kmeans()`
+```{r}
+# cluster using kmeans
+k <- 3  # number of clusters
+iris_k <- kmeans(
+  iris %>% 
+    select(Petal.Length, Petal.Width), 
+  centers = k)
+
+# show cluster result
+iris_k
+```
+
+```{r}
+# compare clusters with species (which were not used to cluster)
+table(iris_k$cluster, iris$Species)
+```
+
+Question: How many observations could be considered “misclassified” if expecting petal length and width to differentiate between species?
+
+```{r}
+# extract cluster assignment per observation
+Cluster = factor(iris_k$cluster)
+
+ggplot(iris, aes(Petal.Length, Petal.Width, color = Cluster)) +
+  geom_point() + 
+  legend_pos
+```
+
+### Plot Voronoi diagram of clustered `iris` 
+This form of clustering assigns points to the cluster based on nearest centroid. You can see the breaks more clearly with a Voronoi diagram.
+```{r}
+# define bounding box for geom_voronoi()
+box <- tribble(
+  ~Petal.Length, ~Petal.Width, ~group,
+  1, 0.1, 1,
+  1, 2.5, 1,
+  7, 2.5, 1,
+  7, 0.1, 1,
+  1, 0.1, 1) %>% 
+  data.frame()
+
+# cluster using kmeans
+k <- 3  # number of clusters
+iris_k <- kmeans(
+  iris %>% 
+    select(Petal.Length, Petal.Width), 
+  centers = k)
+
+# extract cluster assignment per observation
+Cluster = factor(iris_k$cluster)
+
+# extract cluster centers
+ctrs <- as.data.frame(iris_k$centers) %>% 
+  mutate(
+    Cluster = factor(1:k))
+
+# plot points with voronoi diagram showing nearest centroid
+ggplot(iris, aes(Petal.Length, Petal.Width, color = Cluster)) +
+  geom_point() + 
+  legend_pos +
+  geom_voronoi(
+    data = ctrs, aes(fill=Cluster), color = NA, alpha=0.5, outline = box) + 
+  geom_point(
+    data = ctrs, pch=23, cex=2, fill="black")
+```
+Task: Show the Voronoi diagram for fewer (k=2) and more (k=8) clusters to see how assignment to cluster centroids work.
+```{r}
+
+```
+
+## Hierarchical Clustering 
+
+Next, you’ll cluster sites according to species composition. You’ll use the dune dataset from the vegan R package.
+
+## Load `dune` dataset
+```{r}
+# load dune dataset from package vegan
+data("dune")
+
+# show documentation on dataset if interactive
+if (interactive())
+  help(dune)
+```
+
+Question: What are the rows and columns composed of in the dune data frame?
+
+### Calculate Ecological Distances on `sites` 
+
+```{r}
+sites <- tribble(
+  ~site, ~sp1, ~sp2, ~sp3,
+    "A",    1,    1,    0,
+    "B",    5,    5,    0,
+    "C",    0,    0,    1) %>% 
+  column_to_rownames("site")
+sites
 ```
 
