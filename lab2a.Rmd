@@ -553,38 +553,62 @@ data("varechem") # chemistry
 varespec %>% tibble()
 ```
 
+## NMDS can be performed using `monoMDS()` 
+- `monoMDS()` input = dissimilarities, which we can calculate using `vegdist()` 
+- the default is Bray-Curtis dissimilarity 
+- use `stressplot()` to inspect the mapping of observed community dissimilarities onto ordinarition space - note that it is not a linear relationship 
 ```{r}
 vare.dis <- vegdist(varespec)
 vare.mds0 <- monoMDS(vare.dis)
 stressplot(vare.mds0)
 ```
-
-
+## Plot the results of NMDS using `ordiplot()` 
+- shows site scores because dissimilarities input does not have info about species 
 ```{r}
 ordiplot(vare.mds0, type = "t")
 ```
 
+## `metaMDS()` is recommended for the NMDS iterative search 
+- uses several random starts to select among similar solutions with smallest stresses 
+- trace = 0 suppresses the long tracing output 
+- in this case, we input the original data (rather than the dissimilarities) 
+- we can plot the output and see the species 
 ```{r}
 vare.mds <- metaMDS(varespec, trace = FALSE)
 vare.mds
-```
-
-```{r}
 plot(vare.mds, type = "t")
 ```
 
-## Overlay with Environment 
 
+## Overlay with Environment - Environmental interpretation 
+## Vector fitting 
+- fit environmental vectors into ordination 
+- the first two columns give direction cosines of the vectors
+- r2 gives the squared correlation coefficient 
+  - plot axes should be scaled by the square root of r2 (which `plot()` does automatically) 
 ```{r}
 ef <- envfit(vare.mds, varechem, permu = 999)
 ef
 ```
 
+## Plot the fitted environmental vectors 
+- the fitted vectors are arrows 
+  - the arrow points in the direction of the most rapid change in that environmental variable (direction of the gradient) 
+  - arrow length is proportional to the correlation between ordination and environmental variable (strength of the gradient) 
+- p.max limits plotting to the most significant variables 
 ```{r}
 plot(vare.mds, display = "sites")
 plot(ef, p.max = 0.05)
 ```
-
+## Surface fitting 
+- vector fitting implies a linear relationship between ordination and environment - we only need to know direction and strength 
+- `ordisurf()` fits surfaces of environmental variables to ordinations by way of generalized additive models (GAM) 
+  - if the response is linear and vectors are appropriate, the fitted surface is a plane
+- `envfit()1 uses a formula interface in which Y ~ X
+  - returns a fitted GAM
+- `with()` makes the dataframe visible only to the following command
+  - we may not want to make all variables visible to the R session because of confusing/overlapping variable names 
+- add fitted surfaces to a plot of fitted vectors with selected variables 
 ```{r}
 ef <- envfit(vare.mds ~ Al + Ca, data = varechem)
 plot(vare.mds, display = "sites")
@@ -595,20 +619,26 @@ ordisurf(vare.mds ~ Ca, data=varechem, add = TRUE, col = "green4")
 ```
 
 
-## Constrained ordination on species and environment using CCA
+## Constrained ordination on species and environment using `cca()` 
+- for a constrained model, it's best to use a model formula (Y ~ X) 
+  - in this case, we ordinate species constrained by 3 soil elements 
+- the output is similar to unconstrained ordination 
+- now we have 3 constrained and 23 unconstrained components 
+  - in the prior unconstrained analysis, we had 23 components 
+- rank = axes; in other words, we have 3 constrained axes and 23 unconstrained axes 
+  - sometimes there are fewer ranks than axes
 ```{r}
-# ordinate on species constrained by three soil elements
 vare.cca <- cca(varespec ~ Al + P + K, varechem)
 vare.cca
 ```
 
+## Plot the constrained ordination 
+- arrows for constraints have similar interpretation as the fitted vector arrows 
 ```{r}
-# plot ordination
 plot(vare.cca)
 ```
-
+## Plot in 3 dimensions using `ordiplot3d()` 
 ```{r}
-# plot 3 dimensions
 ordiplot3d(vare.cca, type = "h")
 ```
 
