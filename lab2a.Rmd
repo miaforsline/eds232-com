@@ -41,7 +41,6 @@ Use unsupervised classification techniques to:
 - load packages
 - set seed for reproducible results 
 ```{r}
-# load R packages
 librarian::shelf(
   cluster, 
   dplyr, 
@@ -52,7 +51,8 @@ librarian::shelf(
   h2o, 
   scales,
   tibble, 
-  vegan)
+  vegan, 
+  vegan3d)
 
 library(tidyverse)
 
@@ -542,3 +542,80 @@ data.frame(
 ```
 
 ## Non-metrid MultiDimensional Scaling (NMDS) 
+
+### Unconstrained ordination on species 
+- load species (`varespec`) and environmental chemistry (`varechem`) data 
+- this is vegetation and environment in lichen pastures data from Vare et al. (1995)
+```{r}
+data("varespec") # species
+data("varechem") # chemistry
+
+varespec %>% tibble()
+```
+
+```{r}
+vare.dis <- vegdist(varespec)
+vare.mds0 <- monoMDS(vare.dis)
+stressplot(vare.mds0)
+```
+
+
+```{r}
+ordiplot(vare.mds0, type = "t")
+```
+
+```{r}
+vare.mds <- metaMDS(varespec, trace = FALSE)
+vare.mds
+```
+
+```{r}
+plot(vare.mds, type = "t")
+```
+
+## Overlay with Environment 
+
+```{r}
+ef <- envfit(vare.mds, varechem, permu = 999)
+ef
+```
+
+```{r}
+plot(vare.mds, display = "sites")
+plot(ef, p.max = 0.05)
+```
+
+```{r}
+ef <- envfit(vare.mds ~ Al + Ca, data = varechem)
+plot(vare.mds, display = "sites")
+plot(ef)
+
+tmp <- with(varechem, ordisurf(vare.mds, Al, add = TRUE))
+ordisurf(vare.mds ~ Ca, data=varechem, add = TRUE, col = "green4")
+```
+
+
+## Constrained ordination on species and environment using CCA
+```{r}
+# ordinate on species constrained by three soil elements
+vare.cca <- cca(varespec ~ Al + P + K, varechem)
+vare.cca
+```
+
+```{r}
+# plot ordination
+plot(vare.cca)
+```
+
+```{r}
+# plot 3 dimensions
+ordiplot3d(vare.cca, type = "h")
+```
+
+
+```{r}
+if (interactive()){
+  ordirgl(vare.cca)
+}
+```
+
