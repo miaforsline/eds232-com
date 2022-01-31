@@ -436,7 +436,7 @@ plot(hc2, which.plot = 2)
 
 Both `hclust()` and `agnes()` will perform agglomerative hierarchical clustering, but only `agnes()` will also output the agglomerative coefficient (AC), which measures the amount of clustering structures found.  
 
-## Linkage methods to assess:
+## 12. Linkage methods to assess:
 
 -   average
 -   single
@@ -457,6 +457,10 @@ ac <- function(x) {
 purrr::map_dbl(m, ac)
 ```
 
+## **Question:** Of the 4 methods, which is the “best” model in terms of Agglomerative Coefficient?
+
+The ward method had the highest Agglomerative Coefficient. 
+
 ## Compute ward linkage glustering with `agnes()`
 
 -   note that the ward method returned the highest agglomerative
@@ -472,7 +476,7 @@ hc3$ac
 plot(hc3, which.plot = 2)
 ```
 
-## Divisive hierarchical clustering on `dune` using `diana()`
+## 14. Divisive hierarchical clustering on `dune` using `diana()`
 
 -   compute divisive coefficienct (DC), which tells us about the amount
     of clustering structure found
@@ -488,7 +492,11 @@ hc4 <- diana(dune)
 hc4$dc
 ```
 
-## Determining optimal clusters
+## 15. **Question:** In your own words how does agnes() differ from diana()? See HOMLR 21.3.1 Agglomerative hierarchical clustering, slides from Lecture 05. Clustering and help documentation (?agnes(), ?diana()).
+
+While `agnes()` is used for agglomerative hierarchical clustering, `diana()` is used for divisive hierarchical clustering and outputs a divisive coefficient (DC). 
+
+## 16. Determining optimal clusters
 
 -   dotted lines indicate optimal `k` for that method
 
@@ -512,6 +520,10 @@ hc4$dc
 
     gridExtra::grid.arrange(p1, p2, p3, nrow = 1)
     ```
+
+## 17. **Question:** How do the optimal number of clusters compare between methods for those with a dashed line?
+
+The elbow method has no dashed line suggesting an optimal number of clusters. The silhouette method suggests 4 clusters while the gap statistic method suggests 3 clusters, which is similar to the optimal number suggested by the silhouette method. 
 
 ## Working with dendrograms
 
@@ -557,6 +569,10 @@ fviz_dend(
   rect_border = "jco",
   k_colors = "jco")
 ```
+
+## **Question:** In dendrogram plots, which is the biggest determinant of relatedness between observations: the distance between observations along the labeled axes or the height of their shared connection? See HOMLR 21.5 Working with dendrograms.
+
+The biggest determinant of relatedness between observations is the height of their shared connection. 
 
 # Lab 2b: Ordination
 
