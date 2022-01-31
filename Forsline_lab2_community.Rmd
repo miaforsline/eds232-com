@@ -99,12 +99,12 @@ librarian::shelf(
   ggplot2, 
   ggvoronoi, 
   h2o, 
+  palmerpenguins,
   scales,
-  tibble, 
+  tibble,
+  tidyverse,
   vegan, 
   vegan3d)
-
-library(tidyverse)
 
 set.seed(42)
 ```
@@ -132,32 +132,24 @@ set.seed(42)
 ## Load and plot the `palmerpenguins` data
 
 ```{r}
-# load the dataset
-library(palmerpenguins)
-
 peng_clean <- penguins %>% 
   mutate(bill_depth_mm = as.numeric(penguins$bill_depth_mm)) %>% 
   drop_na()
-
-# show data table
-datatable(peng_clean)
 ```
 
-Plot the bill length and bill depth naive of species
+## 1. Plot the bill length and bill depth naive of species *without color*
 
 ```{r}
-ggplot(
-  peng_clean, aes(x = bill_length_mm, y = bill_depth_mm)) +
+ggplot(peng_clean, aes(x = bill_length_mm, y = bill_depth_mm)) +
   geom_point() + 
   theme_classic() + 
   labs(x = "Bill Length (mm)", 
        y = "Bill Depth (mm)")
 ```
 
-Plot the bill length and bill depth by species
+## 2. Plot the bill length and bill depth by species *with color*
 
 ```{r}
-# plot petal length vs width, color by species
 legend_pos <- theme(
     legend.position = c(0.95, 0.05),
     legend.justification = c("right", "bottom"),
@@ -170,7 +162,7 @@ ggplot(
        y = "Bill Depth (mm)")
 ```
 
-### Cluster `palmerpenguins` using `kmeans()`
+## 3. Cluster `palmerpenguins` using `kmeans()`
 
 -   `k` = number of clusters = 3
 
@@ -197,7 +189,9 @@ Compare clusters with species
 table(peng_k$cluster, peng_clean$species)
 ```
 
-## **Question:** How many observations could be considered "misclassified" if expecting bill length and flipper length to differentiate between species?
+## **Bonus Question:** How many observations could be considered "misclassified" if expecting bill length and flipper length to differentiate between species?
+
+11 Adelie penguins were misclassified as group 3 rather than group 1. 28 Chinstrap penguins were misclassified as groups 1 and 3 rather than group 2. 45 Gentoo penguins were misclassified as group 2 rather than group 3. Thus, in total, 84 observations were misclassified. 
 
 Extract cluster assignment per observation
 
@@ -212,7 +206,15 @@ ggplot(peng_clean, aes(x = bill_length_mm, bill_depth_mm, color = Cluster)) +
        y = "Bill Depth (mm)")
 ```
 
-## Plot Voronoi diagram of clustered `palmerpenguins`
+## 4. Question: Comparing the observed species plot with 3 species with the kmeans() cluster plot with 3 clusters, where does this “unsupervised” kmeans() technique (that does not use species to “fit” the model) produce similar versus different results? One or two sentences would suffice. Feel free to mention ranges of values along the axes.
+
+The observed species plot uses red to denote Adelie observations in the top left of the figure, green to denote Chinstrap observations in the middle of the plot, and blue to denote Gentoo observations near the bottom of the plot. In other words, Adelie penguins are characterized by short bill length but large bill depth, Chinstrap penguins are characterized by a long bill length and large bill depth, and Gentoo penguins are characterized by a short/medium bill length and a small bill depth. 
+
+Contrastingly, the `kmeans()` cluster plot confuses the Chinstrap and Gentoo species and creates 3 distinct clusters mostly based on bill length with cluster 1 have a short bill length, cluster 2 having a medium bill length, and cluster 3 having the longest bill length. 
+
+The two plots are similar because Adelie penguins are generally identified successfully, but the two plots differ based on how they categorized Chinstrap and Gentoo into clusters 2 and 3. 
+
+## 5. Plot Voronoi diagram of clustered `palmerpenguins`
 
 -   assigns points to the cluster based on nearest centroid and helps
     visualize the breaks more clearly
