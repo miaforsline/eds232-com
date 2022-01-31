@@ -206,7 +206,7 @@ ggplot(peng_clean, aes(x = bill_length_mm, bill_depth_mm, color = Cluster)) +
        y = "Bill Depth (mm)")
 ```
 
-## 4. Question: Comparing the observed species plot with 3 species with the kmeans() cluster plot with 3 clusters, where does this “unsupervised” kmeans() technique (that does not use species to “fit” the model) produce similar versus different results? One or two sentences would suffice. Feel free to mention ranges of values along the axes.
+## 4. **Question:** Comparing the observed species plot with 3 species with the kmeans() cluster plot with 3 clusters, where does this “unsupervised” kmeans() technique (that does not use species to “fit” the model) produce similar versus different results? One or two sentences would suffice. Feel free to mention ranges of values along the axes.
 
 The observed species plot uses red to denote Adelie observations in the top left of the figure, green to denote Chinstrap observations in the middle of the plot, and blue to denote Gentoo observations near the bottom of the plot. In other words, Adelie penguins are characterized by short bill length but large bill depth, Chinstrap penguins are characterized by a long bill length and large bill depth, and Gentoo penguins are characterized by a short/medium bill length and a small bill depth. 
 
@@ -337,14 +337,14 @@ if (interactive())
   help(dune)
 ```
 
-## **Question:** What are the rows and columns composed of in the dune data frame?
+## **Bonus Question:** What are the rows and columns composed of in the dune data frame?
 
 The `dune` dataset describes dune meadow vegetation. It has cover class
 values of 30 species on 20 sites. The column names are 30 species of
 vegetation. The row values are observation numbers for each of the 20
 sites.
 
-### Calculate Ecological Distances on `sites`
+## Calculate Ecological Distances on `sites`
 
 -   start by using a simpler dataset from Ch. 8 of Kindt and Coe (2005)
 
@@ -358,26 +358,34 @@ sites <- tribble(
 sites
 ```
 
-### Calculate Manhattan distance
+## Calculate Manhattan distance
 
 ```{r}
 sites_manhattan <- vegdist(sites, method="manhattan")
 sites_manhattan
 ```
 
-### Calculate Euclidean distance
+## Calculate Euclidean distance
 
 ```{r}
 sites_euclidean <- vegdist(sites, method="euclidean")
 sites_euclidean
 ```
 
-### Calculate Bray-Curtis dissimilarity
+## 6. **Question:** In your own words, how does Bray Curtis differ from Euclidean distance? See sites_euclidean versus sites_bray from lab code, slides from Lecture 05. Clustering and reading Chapter 8 of Kindt and Coe (2005).
+
+Euclidean distance uses the Pythagorean Theorem to calculate the shortest distance from Point A to Point B. In contrast,Bray-Curtis Dissimilarity is used in ecological contexts to quantify the similarities and dissimilarities between sites based on species counts for each site. 
+
+
+## 7. Bray-Curtis distance matrix 
+
+## Calculate Bray-Curtis dissimilarity
 
 ```{r}
 sites_bray <- vegdist(sites, method="bray")
 sites_bray
 ```
+
 
 ## Agglomerative hierarchical clustering on `dune`
 
@@ -390,7 +398,7 @@ dim(d)
 as.matrix(d)[1:5, 1:5]
 ```
 
-## Hierarchical clustering using Complete Linkage and `hclust()`
+## 8. Hierarchical clustering using Complete Linkage and `hclust()`
 
 -   plot dendrogram
 
@@ -400,7 +408,11 @@ hc1 <- hclust(d, method = "complete" )
 plot(hc1, cex = 0.6, hang = -1)
 ```
 
-## Compute agglomerative clustering with `agnes()`
+## 9. **Question:** Which function comes first, vegdist() or hclust(), and why? See HOMLR 21.3.1 Agglomerative hierarchical clustering.
+
+`vegdist()` comes first because we feed these distances into the `hclust()` function to aggolomerate the dissimilarity values using the appropriate method. 
+
+## 10. Compute agglomerative clustering with `agnes()`
 
 -   report the agglomerative coefficient (AC), which measures the amount
     of clustering structure found
@@ -419,6 +431,10 @@ hc2$ac
 
 plot(hc2, which.plot = 2)
 ```
+
+## 11. **Question:** In your own words how does hclust() differ from agnes()? See HOMLR 21.3.1 Agglomerative hierarchical clustering and help documentation (?hclust(), ?agnes()).
+
+Both `hclust()` and `agnes()` will perform agglomerative hierarchical clustering, but only `agnes()` will also output the agglomerative coefficient (AC), which measures the amount of clustering structures found.  
 
 ## Linkage methods to assess:
 
