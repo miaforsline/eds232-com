@@ -27,7 +27,8 @@ knitr::opts_chunk$set(echo = TRUE,
 
 Use unsupervised classification techniques to:
 
--   compare species counts between sites using distance metrics
+-   compare species counts between sites using different distance
+    metrics:
 
     -   **Euclidean distance**: based on the Pythagorean Theorem
 
@@ -54,9 +55,35 @@ Use unsupervised classification techniques to:
 
         -   agglomerative hierarchical clustering using `diana()`: good
             for identifying small clusters
+
         -   divisive hierarchical clustering using `agnes()`: good for
             identifying large clusters
+
         -   dendrograms to visualize the branching tree
+
+-   ordinate
+
+**Lab 2b: Ordination**
+
+-   ordination orders sites near each other based on similarity
+
+-   ordination is a multivariate analysis technique that collapses many
+    dependent axes into fewer dimensions (dimensionality reduction)
+
+    -   **Principal Components Analysis (PCA)**: assumes linear
+        relationships between axes
+
+    -   **Non-metric MultiDimensional Scaling (NMDS)**: allows for
+        non-linear relationships between axes
+
+        -   uses the `vegan` R package
+
+        -   **unconstrained ordination** on species
+
+        -   overlay with environmental gradients
+
+        -   **constrained ordination** on species and environment using
+            **canonical correspondence analysis (CCA)**
 
 # Set Up
 
@@ -82,16 +109,6 @@ library(tidyverse)
 set.seed(42)
 ```
 
-**Lab 2b: Ordination** - ordination orders sits near each other based on
-similarity - multivariate analysis technique to collapse many dependent
-axes into fewer dimensions (dimensionality reduction) - **Principal
-Components Analysis (PCA)**: assumes linear relationships between axes -
-**Non-metric MultiDimensional Scaling (NMDS)**: allows for non-linear
-relationships between axes - uses the `vegan` R package -
-**unconstrained ordination** - overlay with environmental gradients -
-**constrained ordination** on species and environment using **canonical
-correspondence analysis (CCA)**
-
 # Lab 2a: Clustering
 
 -   an unsupervised learning technique that associates similar data
@@ -116,29 +133,28 @@ correspondence analysis (CCA)**
 
 ```{r}
 # load the dataset
-#data("iris")
 library(palmerpenguins)
 
 peng_clean <- penguins %>% 
-  mutate(flipper_length_mm = as.numeric(penguins$flipper_length_mm)) %>% 
+  mutate(bill_depth_mm = as.numeric(penguins$bill_depth_mm)) %>% 
   drop_na()
 
 # show data table
 datatable(peng_clean)
 ```
 
-Plot the bill length and flipper length naive of species
+Plot the bill length and bill depth naive of species
 
 ```{r}
 ggplot(
-  peng_clean, aes(x = bill_length_mm, y = flipper_length_mm)) +
+  peng_clean, aes(x = bill_length_mm, y = bill_depth_mm)) +
   geom_point() + 
   theme_classic() + 
   labs(x = "Bill Length (mm)", 
-       y = "Flipper Length (mm)")
+       y = "Bill Depth (mm)")
 ```
 
-Plot the bill length and flipper length by species
+Plot the bill length and bill depth by species
 
 ```{r}
 # plot petal length vs width, color by species
@@ -147,11 +163,11 @@ legend_pos <- theme(
     legend.justification = c("right", "bottom"),
     legend.box.just = "right")
 ggplot(
-  peng_clean, aes(x = bill_length_mm, y = flipper_length_mm, color = species)) +
+  peng_clean, aes(x = bill_length_mm, y = bill_depth_mm, color = species)) +
   geom_point() + 
   theme_classic() + 
   labs(x = "Bill Length (mm)", 
-       y = "Flipper Length (mm)")
+       y = "Bill Depth (mm)")
 ```
 
 ### Cluster `palmerpenguins` using `kmeans()`
@@ -168,7 +184,7 @@ ggplot(
 
     peng_k <- kmeans(
       peng_clean %>% 
-        select(bill_length_mm, flipper_length_mm),
+        select(bill_length_mm, bill_depth_mm),
       centers = k)
 
     # show cluster result
@@ -183,20 +199,17 @@ table(peng_k$cluster, peng_clean$species)
 
 ## **Question:** How many observations could be considered "misclassified" if expecting bill length and flipper length to differentiate between species?
 
-56 observations could be misclassified using bill length and flipper
-length to differentiate between penguin species.
-
 Extract cluster assignment per observation
 
 ```{r}
 Cluster = factor(peng_k$cluster)
 
-ggplot(peng_clean, aes(x = bill_length_mm, flipper_length_mm, color = Cluster)) +
+ggplot(peng_clean, aes(x = bill_length_mm, bill_depth_mm, color = Cluster)) +
   geom_point() + 
   legend_pos + 
   theme_classic() + 
   labs(x = "Bill Length (mm)", 
-       y = "Flipper Length (mm)")
+       y = "Bill Depth (mm)")
 ```
 
 ## Plot Voronoi diagram of clustered `palmerpenguins`
@@ -211,13 +224,17 @@ ggplot(peng_clean, aes(x = bill_length_mm, flipper_length_mm, color = Cluster)) 
 -   plot points with voronoi diagram showing nearest centroid
 
 ```{r}
+# define bounding box for geom_voronoi()
+xr <- extendrange(range(penguins$bill_length_mm), f=0.1)
+yr <- extendrange(range(penguins$bill_depth_mm), f=0.1)
+
 box <- tribble(
-  ~bill_length_mm, ~flipper_length_mm, ~group,
-  30, 170, 1,
-  30, 235, 1,
-  60, 235, 1,
-  60, 170, 1,
-  30, 170, 1) %>% 
+  ~bill_length_mm, ~bill_depth_mm, ~group,
+  xr[1], yr[1], 1,
+  xr[1], yr[2], 1,
+  xr[2], yr[2], 1,
+  xr[2], yr[1], 1,
+  xr[1], yr[1], 1) %>% 
   data.frame()
 
 # cluster using kmeans
@@ -225,7 +242,7 @@ k <- 3
 
 peng_k <- kmeans(
   peng_clean %>% 
-    select(bill_length_mm, flipper_length_mm),
+    select(bill_length_mm, bill_depth_mm),
   centers = k)
 
 Cluster = factor(peng_k$cluster)
@@ -234,7 +251,7 @@ ctrs <- as.data.frame(peng_k$centers) %>%
   mutate(
     Cluster = factor(1:k))
 
-ggplot(peng_clean, aes(x = bill_length_mm, y = flipper_length_mm, color = Cluster)) +
+ggplot(peng_clean, aes(x = bill_length_mm, y = bill_depth_mm, color = Cluster)) +
   geom_point() + 
   legend_pos +
   geom_voronoi(
@@ -243,7 +260,7 @@ ggplot(peng_clean, aes(x = bill_length_mm, y = flipper_length_mm, color = Cluste
     data = ctrs, pch=23, cex=2, fill="black") + 
   theme_classic() + 
   labs(x = "Bill Length (mm)", 
-       y = "Flipper Length (mm)")
+       y = "Bill Depth (mm)")
 ```
 
 ## **Task:** Show the Voronoi diagram for fewer (k=2) and more (k=8) clusters to see how assignment to cluster centroids work.
@@ -255,7 +272,7 @@ k <- 2
 
 peng_k <- kmeans(
   peng_clean %>% 
-    select(bill_length_mm, flipper_length_mm),
+    select(bill_length_mm, bill_depth_mm),
   centers = k)
 
 Cluster = factor(peng_k$cluster)
@@ -264,7 +281,7 @@ ctrs <- as.data.frame(peng_k$centers) %>%
   mutate(
     Cluster = factor(1:k))
 
-ggplot(peng_clean, aes(x = bill_length_mm, y = flipper_length_mm, color = Cluster)) +
+ggplot(peng_clean, aes(x = bill_length_mm, y = bill_depth_mm, color = Cluster)) +
   geom_point() + 
   legend_pos +
   geom_voronoi(
@@ -273,7 +290,7 @@ ggplot(peng_clean, aes(x = bill_length_mm, y = flipper_length_mm, color = Cluste
     data = ctrs, pch=23, cex=2, fill="black") + 
   theme_classic() + 
   labs(x = "Bill Length (mm)", 
-       y = "Flipper Length (mm)")
+       y = "Bill Depth (mm)")
 ```
 
 ## Voronoi diagram for k = 8
@@ -283,7 +300,7 @@ k <- 8
 
 peng_k <- kmeans(
   peng_clean %>% 
-    select(bill_length_mm, flipper_length_mm),
+    select(bill_length_mm, bill_depth_mm),
   centers = k)
 
 Cluster = factor(peng_k$cluster)
@@ -292,7 +309,7 @@ ctrs <- as.data.frame(peng_k$centers) %>%
   mutate(
     Cluster = factor(1:k))
 
-ggplot(peng_clean, aes(x = bill_length_mm, y = flipper_length_mm, color = Cluster)) +
+ggplot(peng_clean, aes(x = bill_length_mm, y = bill_depth_mm, color = Cluster)) +
   geom_point() + 
   legend_pos +
   geom_voronoi(
@@ -301,7 +318,7 @@ ggplot(peng_clean, aes(x = bill_length_mm, y = flipper_length_mm, color = Cluste
     data = ctrs, pch=23, cex=2, fill="black") + 
   theme_classic() + 
   labs(x = "Bill Length (mm)", 
-       y = "Flipper Length (mm)")
+       y = "Bill Depth (mm)")
 ```
 
 ## Hierarchical Clustering
