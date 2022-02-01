@@ -191,7 +191,10 @@ table(peng_k$cluster, peng_clean$species)
 
 ## **Bonus Question:** How many observations could be considered "misclassified" if expecting bill length and flipper length to differentiate between species?
 
-11 Adelie penguins were misclassified as group 3 rather than group 1. 28 Chinstrap penguins were misclassified as groups 1 and 3 rather than group 2. 45 Gentoo penguins were misclassified as group 2 rather than group 3. Thus, in total, 84 observations were misclassified. 
+11 Adelie penguins were misclassified as group 3 rather than group 1. 28
+Chinstrap penguins were misclassified as groups 1 and 3 rather than
+group 2. 45 Gentoo penguins were misclassified as group 2 rather than
+group 3. Thus, in total, 84 observations were misclassified.
 
 Extract cluster assignment per observation
 
@@ -206,13 +209,25 @@ ggplot(peng_clean, aes(x = bill_length_mm, bill_depth_mm, color = Cluster)) +
        y = "Bill Depth (mm)")
 ```
 
-## 4. **Question:** Comparing the observed species plot with 3 species with the kmeans() cluster plot with 3 clusters, where does this “unsupervised” kmeans() technique (that does not use species to “fit” the model) produce similar versus different results? One or two sentences would suffice. Feel free to mention ranges of values along the axes.
+## 4. **Question:** Comparing the observed species plot with 3 species with the kmeans() cluster plot with 3 clusters, where does this "unsupervised" kmeans() technique (that does not use species to "fit" the model) produce similar versus different results? One or two sentences would suffice. Feel free to mention ranges of values along the axes.
 
-The observed species plot uses red to denote Adelie observations in the top left of the figure, green to denote Chinstrap observations in the middle of the plot, and blue to denote Gentoo observations near the bottom of the plot. In other words, Adelie penguins are characterized by short bill length but large bill depth, Chinstrap penguins are characterized by a long bill length and large bill depth, and Gentoo penguins are characterized by a short/medium bill length and a small bill depth. 
+The observed species plot uses red to denote Adelie observations in the
+top left of the figure, green to denote Chinstrap observations in the
+middle of the plot, and blue to denote Gentoo observations near the
+bottom of the plot. In other words, Adelie penguins are characterized by
+short bill length but large bill depth, Chinstrap penguins are
+characterized by a long bill length and large bill depth, and Gentoo
+penguins are characterized by a short/medium bill length and a small
+bill depth.
 
-Contrastingly, the `kmeans()` cluster plot confuses the Chinstrap and Gentoo species and creates 3 distinct clusters mostly based on bill length with cluster 1 have a short bill length, cluster 2 having a medium bill length, and cluster 3 having the longest bill length. 
+Contrastingly, the `kmeans()` cluster plot confuses the Chinstrap and
+Gentoo species and creates 3 distinct clusters mostly based on bill
+length with cluster 1 have a short bill length, cluster 2 having a
+medium bill length, and cluster 3 having the longest bill length.
 
-The two plots are similar because Adelie penguins are generally identified successfully, but the two plots differ based on how they categorized Chinstrap and Gentoo into clusters 2 and 3. 
+The two plots are similar because Adelie penguins are generally
+identified successfully, but the two plots differ based on how they
+categorized Chinstrap and Gentoo into clusters 2 and 3.
 
 ## 5. Plot Voronoi diagram of clustered `palmerpenguins`
 
@@ -374,10 +389,13 @@ sites_euclidean
 
 ## 6. **Question:** In your own words, how does Bray Curtis differ from Euclidean distance? See sites_euclidean versus sites_bray from lab code, slides from Lecture 05. Clustering and reading Chapter 8 of Kindt and Coe (2005).
 
-Euclidean distance uses the Pythagorean Theorem to calculate the shortest distance from Point A to Point B. In contrast,Bray-Curtis Dissimilarity is used in ecological contexts to quantify the similarities and dissimilarities between sites based on species counts for each site. 
+Euclidean distance uses the Pythagorean Theorem to calculate the
+shortest distance from Point A to Point B. In contrast,Bray-Curtis
+Dissimilarity is used in ecological contexts to quantify the
+similarities and dissimilarities between sites based on species counts
+for each site.
 
-
-## 7. Bray-Curtis distance matrix 
+## 7. Bray-Curtis distance matrix
 
 ## Calculate Bray-Curtis dissimilarity
 
@@ -385,7 +403,6 @@ Euclidean distance uses the Pythagorean Theorem to calculate the shortest distan
 sites_bray <- vegdist(sites, method="bray")
 sites_bray
 ```
-
 
 ## Agglomerative hierarchical clustering on `dune`
 
@@ -410,7 +427,9 @@ plot(hc1, cex = 0.6, hang = -1)
 
 ## 9. **Question:** Which function comes first, vegdist() or hclust(), and why? See HOMLR 21.3.1 Agglomerative hierarchical clustering.
 
-`vegdist()` comes first because we feed these distances into the `hclust()` function to aggolomerate the dissimilarity values using the appropriate method. 
+`vegdist()` comes first because we feed these distances into the
+`hclust()` function to aggolomerate the dissimilarity values using the
+appropriate method.
 
 ## 10. Compute agglomerative clustering with `agnes()`
 
@@ -434,7 +453,10 @@ plot(hc2, which.plot = 2)
 
 ## 11. **Question:** In your own words how does hclust() differ from agnes()? See HOMLR 21.3.1 Agglomerative hierarchical clustering and help documentation (?hclust(), ?agnes()).
 
-Both `hclust()` and `agnes()` will perform agglomerative hierarchical clustering, but only `agnes()` will also output the agglomerative coefficient (AC), which measures the amount of clustering structures found.  
+Both `hclust()` and `agnes()` will perform agglomerative hierarchical
+clustering, but only `agnes()` will also output the agglomerative
+coefficient (AC), which measures the amount of clustering structures
+found.
 
 ## 12. Linkage methods to assess:
 
@@ -457,9 +479,9 @@ ac <- function(x) {
 purrr::map_dbl(m, ac)
 ```
 
-## **Question:** Of the 4 methods, which is the “best” model in terms of Agglomerative Coefficient?
+## **Question:** Of the 4 methods, which is the "best" model in terms of Agglomerative Coefficient?
 
-The ward method had the highest Agglomerative Coefficient. 
+The ward method had the highest Agglomerative Coefficient.
 
 ## Compute ward linkage glustering with `agnes()`
 
@@ -494,7 +516,9 @@ hc4$dc
 
 ## 15. **Question:** In your own words how does agnes() differ from diana()? See HOMLR 21.3.1 Agglomerative hierarchical clustering, slides from Lecture 05. Clustering and help documentation (?agnes(), ?diana()).
 
-While `agnes()` is used for agglomerative hierarchical clustering, `diana()` is used for divisive hierarchical clustering and outputs a divisive coefficient (DC). 
+While `agnes()` is used for agglomerative hierarchical clustering,
+`diana()` is used for divisive hierarchical clustering and outputs a
+divisive coefficient (DC).
 
 ## 16. Determining optimal clusters
 
@@ -523,7 +547,10 @@ While `agnes()` is used for agglomerative hierarchical clustering, `diana()` is 
 
 ## 17. **Question:** How do the optimal number of clusters compare between methods for those with a dashed line?
 
-The elbow method has no dashed line suggesting an optimal number of clusters. The silhouette method suggests 4 clusters while the gap statistic method suggests 3 clusters, which is similar to the optimal number suggested by the silhouette method. 
+The elbow method has no dashed line suggesting an optimal number of
+clusters. The silhouette method suggests 4 clusters while the gap
+statistic method suggests 3 clusters, which is similar to the optimal
+number suggested by the silhouette method.
 
 ## Working with dendrograms
 
@@ -570,9 +597,10 @@ fviz_dend(
   k_colors = "jco")
 ```
 
-## **Question:** In dendrogram plots, which is the biggest determinant of relatedness between observations: the distance between observations along the labeled axes or the height of their shared connection? See HOMLR 21.5 Working with dendrograms.
+## 18. **Question:** In dendrogram plots, which is the biggest determinant of relatedness between observations: the distance between observations along the labeled axes or the height of their shared connection? See HOMLR 21.5 Working with dendrograms.
 
-The biggest determinant of relatedness between observations is the height of their shared connection. 
+The biggest determinant of relatedness between observations is the
+height of their shared connection.
 
 # Lab 2b: Ordination
 
@@ -611,7 +639,7 @@ h2o.init(max_mem_size = "5g")  # connect to H2O instance
 my_basket.h2o <- as.h2o(my_basket)
 ```
 
-## Run PCA using `h2o.prcomp()`
+## 19. Run PCA using `h2o.prcomp()`
 
 -   use "GramSVD" method for numeric data ("GLRM" method can be used for
     categorical data)
@@ -629,7 +657,16 @@ my_pca <- h2o.prcomp(
 my_pca
 ```
 
-## Plot PCA
+## 20. **Question:** Why is the pca_method of "GramSVD" chosen over "GLRM"? See HOMLR 17.4 Performing PCA in R.
+
+We used the `GramSVD` method rather than the `GLRM` method because our
+data is mostly categorical, rather than numerical.
+
+## 21. **Question:** How many inital principal components are chosen with respect to dimensions of the input data? See HOMLR 17.4 Performing PCA in R.
+
+Initially, `my_pca` contains 42 PC axes.
+
+## 22. Plot the eigenvector influence of each feature on the first principal component analysis
 
 -   assess what items most contribute to PC1
 
@@ -647,14 +684,42 @@ my_pca
       ggplot(aes(pc1, reorder(feature, pc1))) +
       geom_point() + 
       theme_classic()
+    ```
 
-    my_pca@model$eigenvectors %>% 
+    ## 23. **Question:** What category of grocery items contribute most to PC1? (These are related because they're bought most often together on a given grocery trip)
+
+Adult alcoholic beverages such as Bulmers and red wine most contribute
+to PC1.
+
+## 24. Plot of eigenvector influence of each feature on the first principal component PC2
+
+```{r}
+my_pca@model$eigenvectors %>% 
+      as.data.frame() %>% 
+      mutate(feature = row.names(.)) %>%
+      ggplot(aes(pc2, reorder(feature, pc2))) +
+      geom_point() + 
+      theme_classic()
+```
+
+Candy and drinks such as Mars, milk, Twix, and tea most contributed to
+PC2.
+
+```{r}
+my_pca@model$eigenvectors %>% 
       as.data.frame() %>% 
       mutate(feature = row.names(.)) %>%
       ggplot(aes(pc1, pc2, label = feature)) +
       geom_text() + 
       theme_classic()
-    ```
+```
+
+## 25. **Question:** What category of grocery items contribute the least to PC1 but positively towards PC2?
+
+Vegetables such as leeks, broccoli, spinach, peas, and carrots
+contribute very little to PC1 but contribute a moderately to PC2.
+Similarly, breakfast items such as milk, tea, instant coffee, and muesli
+contribute little to PC1 but a lot to PC2.
 
 ## Eigenvalue criterion
 
@@ -684,7 +749,7 @@ my_pca
     which(eigen >= 1)
     ```
 
-## Proportion of variance explained (PVE)
+## 26. Proportion of variance explained (PVE)
 
 -   PVE identifies the optimal number of PCs to keep
 -   PVE is based on the total variability we want to account for
@@ -703,21 +768,27 @@ ve %>%
   tidyr::gather(metric, variance_explained, -PC) %>%
   ggplot(aes(PC, variance_explained)) +
   geom_point() +
-  facet_wrap(~ metric, ncol = 1, scales = "free")
+  facet_wrap(~ metric, ncol = 1, scales = "free") + 
+  theme_classic()
 ```
 
-How many PCs do we need to explain at least 75% of the total
-variability?
+## 27 **Question:** How many PCs do we need to explain at least 90% of the total variability?
 
 ```{r}
-min(which(ve$CVE >= 0.75))
+min <- min(which(ve$CVE >= 0.90))
 ```
 
-\#\#Scree plot criterion - a scree plot shows the eigenvalues or PVE for
-each PC - scree plots often start off high and fall rather quickly
-because the first few PCs often explain much of the variability, the
-next few PCs explain a moderate amount, and the last components explain
-very little - this creates an "elbow" curve
+To explain at least 90% of the total variablility, we would need `r min`
+PCs.
+
+## 28. Scree plot criterion
+
+-   a scree plot shows the eigenvalues or PVE for each PC
+-   scree plots often start off high and fall rather quickly because the
+    first few PCs often explain much of the variability, the next few
+    PCs explain a moderate amount, and the last components explain very
+    little
+-   this creates an "elbow" curve
 
 ```{r}
 data.frame(
@@ -729,6 +800,21 @@ data.frame(
   geom_text(nudge_y = -.002) + 
   theme_classic()
 ```
+
+## 29. **Question:** How many principal components to include up to the elbow of the PVE, i.e. the "elbow" before plateau of dimensions explaining the least variance?
+
+We can include 6 PCs before the "elbow" where the curve steeply drops
+off.
+
+## 30. **Question:** What are a couple of disadvantages to using PCA? See HOMLR 17.6 Final thoughts.
+
+One disadvantage is that is can be difficult to decide how many PCs are
+appropriate to use. Different criteria will suggest a different optimum
+number of PCs, and this reflects a challenge of unsupervised modeling in
+general. Furthermore, PCA is very sensitive to outliers, but there are
+alternative dimension reduction techniques that can take outliers into
+consideration. Finally, PCA is not very effective for high dimensional
+space with complex nonlinear patterns.
 
 ## Non-metrid MultiDimensional Scaling (NMDS)
 
@@ -746,7 +832,14 @@ data("varechem") # chemistry
 varespec %>% tibble()
 ```
 
-## NMDS can be performed using `monoMDS()`
+## 31. **Question:** What are the dimensions of the varespec data frame and what do rows versus columns represent?
+
+The `varespec` data frame is 24 rows x 44 rolumns. The columns identify
+different vegetation species by combining the first four letters of the
+species and genus name. The rows identify cover values of the 44
+species.
+
+## 32. NMDS can be performed using `monoMDS()`
 
 -   `monoMDS()` input = dissimilarities, which we can calculate using
     `vegdist()`
@@ -761,7 +854,12 @@ vare.mds0 <- monoMDS(vare.dis)
 stressplot(vare.mds0)
 ```
 
-## Plot the results of NMDS using `ordiplot()`
+## 33. **Question:** The "stress" in a stressplot represents the difference between the observed inpnut distance versus the fitted ordination distance. How much better is the non-metric (i.e., NMDS) fit versus a linear fit (as with PCA) in terms of $R^2$?
+
+The non-metric fit has a $R^2$ value of 0.99 while the linear fit has an
+$R^2$ value of 0.943, making for a 0.047 difference.
+
+## 34. Plot the results of NMDS using `ordiplot()`
 
 -   shows site scores because dissimilarities input does not have info
     about species
@@ -770,7 +868,13 @@ stressplot(vare.mds0)
 ordiplot(vare.mds0, type = "t")
 ```
 
-## `metaMDS()` is recommended for the NMDS iterative search
+## 35 **Question:** What two sites are most dissimilar based on species composition for the first component MDS1? And two more most dissimilar sites for the second component MDS2?
+
+For MDS1, sites 5 and 28 are most dissimilar, though it is important to
+note that 4, 3, and 2 are also very dissimilar from 28. For MDS2, 5 and
+21 are most dissimilar, though 14 is also very dissimilar from 21.
+
+## 36. `metaMDS()` is recommended for the NMDS iterative search
 
 -   uses several random starts to select among similar solutions with
     smallest stresses
@@ -782,8 +886,21 @@ ordiplot(vare.mds0, type = "t")
 ```{r}
 vare.mds <- metaMDS(varespec, trace = FALSE)
 vare.mds
+```
+
+# 37. Plot of sites with species text for NMDS1 and NMDS2
+
+```{r}
 plot(vare.mds, type = "t")
 ```
+
+## 38. **Question:** What is the basic difference between metaMDS and monoMDS()? See 2.1 Non-metric Multidimensional scaling of vegantutor.pdf.
+
+The iterative search in NMDS can be difficult because the iteration can
+get trapped in a local optimum rather than finding the overall global
+optimum. To solve this problem, `metaMDS()` uses several random starts
+and select among similar solutions with the smallest stresses. This is
+an improvement compared to `monoMDS()`.
 
 ## Overlay with Environment - Environmental interpretation
 
@@ -803,7 +920,7 @@ plot(vare.mds, type = "t")
     ef
     ```
 
-## Plot the fitted environmental vectors
+## 39. Plot the fitted environmental vectors
 
 -   the fitted vectors are arrows
 
@@ -819,10 +936,17 @@ plot(vare.mds, display = "sites")
 plot(ef, p.max = 0.05)
 ```
 
-## Surface fitting
+## 40. **Question:** What two soil chemistry elements have the strongest negative relationship with NMDS1 that is based on species composition?
+
+Aluminum (Al) and iron (Fe) have the strongest negative relationship
+with NMDS1.
+
+## 41. Surface fitting
 
 -   vector fitting implies a linear relationship between ordination and
-    environment - we only need to know direction and strength
+    environment
+
+    -   we only need to know direction and strength
 
 -   `ordisurf()` fits surfaces of environmental variables to ordinations
     by way of generalized additive models (GAM)
@@ -830,7 +954,7 @@ plot(ef, p.max = 0.05)
     -   if the response is linear and vectors are appropriate, the
         fitted surface is a plane
 
--   \`envfit()1 uses a formula interface in which Y \~ X
+-   `envfit()` uses a formula interface in which Y \~ X
 
     -   returns a fitted GAM
 
@@ -842,6 +966,9 @@ plot(ef, p.max = 0.05)
 -   add fitted surfaces to a plot of fitted vectors with selected
     variables
 
+    -   aluminum is in red
+    -   calcium is in green
+
 ```{r}
 ef <- envfit(vare.mds ~ Al + Ca, data = varechem)
 plot(vare.mds, display = "sites")
@@ -850,6 +977,12 @@ plot(ef)
 tmp <- with(varechem, ordisurf(vare.mds, Al, add = TRUE))
 ordisurf(vare.mds ~ Ca, data=varechem, add = TRUE, col = "green4")
 ```
+
+## 42. **Question:** Which of the two NMDS axes differentiates Ca the most, i.e. has the highest value given by the contours at the end (and not middle) of the axis?
+
+Calcium is most differentiated over NMDS1. 
+
+## 43. **Question:** What is the difference between “constrained” versus “unconstrained” ordination within ecological context?
 
 ## Constrained ordination on species and environment using `cca()`
 
@@ -873,7 +1006,7 @@ ordisurf(vare.mds ~ Ca, data=varechem, add = TRUE, col = "green4")
     vare.cca
     ```
 
-## Plot the constrained ordination
+## 44. Plot the constrained ordination
 
 -   arrows for constraints have similar interpretation as the fitted
     vector arrows
@@ -881,6 +1014,10 @@ ordisurf(vare.mds ~ Ca, data=varechem, add = TRUE, col = "green4")
 ```{r}
 plot(vare.cca)
 ```
+
+## 45. **Question:** What sites are most differentiated by CCA1, i.e. furthest apart along its axis, based on species composition AND the environmnent? What is the strongest environmental vector for CCA1, i.e. longest environmental vector in the direction of the CCA1 axes?
+
+
 
 ## Plot in 3 dimensions using `ordiplot3d()`
 
