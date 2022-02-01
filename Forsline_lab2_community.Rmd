@@ -61,8 +61,6 @@ Use unsupervised classification techniques to:
 
         -   dendrograms to visualize the branching tree
 
--   ordinate
-
 **Lab 2b: Ordination**
 
 -   ordination orders sites near each other based on similarity
@@ -479,7 +477,7 @@ ac <- function(x) {
 purrr::map_dbl(m, ac)
 ```
 
-## **Question:** Of the 4 methods, which is the "best" model in terms of Agglomerative Coefficient?
+## 13. **Question:** Of the 4 methods, which is the "best" model in terms of Agglomerative Coefficient?
 
 The ward method had the highest Agglomerative Coefficient.
 
@@ -888,7 +886,7 @@ vare.mds <- metaMDS(varespec, trace = FALSE)
 vare.mds
 ```
 
-# 37. Plot of sites with species text for NMDS1 and NMDS2
+## 37. Plot of sites with species text for NMDS1 and NMDS2
 
 ```{r}
 plot(vare.mds, type = "t")
@@ -1019,7 +1017,7 @@ plot(vare.cca)
 
 ## 45. **Question:** What sites are most differentiated by CCA1, i.e. furthest apart along its axis, based on species composition AND the environmnent? What is the strongest environmental vector for CCA1, i.e. longest environmental vector in the direction of the CCA1 axes?
 
-
+Sites 28 and 4 are most differentiated by CCA1. Aluminum is the strongest environmental vector for CCA1. 
 
 ## Plot in 3 dimensions using `ordiplot3d()`
 
