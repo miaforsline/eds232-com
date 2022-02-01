@@ -984,6 +984,8 @@ Calcium is most differentiated over NMDS1.
 
 ## 43. **Question:** What is the difference between “constrained” versus “unconstrained” ordination within ecological context?
 
+In an ecological context, we often use unconstrained ordination on species using NMDS, overlay with environmental gradients, then constrained ordination on species and the environment using an ordination technique called canonical correspondence analysis (CCA). Thus, unconstrained ordination we find the majority of the compositional variation and relate it to observed environmental variation. In constrained ordination, we are constrained by environmental variables to explain the variation rather than trying to explain all the variation. 
+
 ## Constrained ordination on species and environment using `cca()`
 
 -   for a constrained model, it's best to use a model formula (Y \~ X)
