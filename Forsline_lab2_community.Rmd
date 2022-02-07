@@ -609,8 +609,9 @@ height of their shared connection.
 -   the `my_basket` data set identifies items and quantities purchased
     for 2,000 transactions from a grocery store
 
-    -   each observation is a single basket of goods that were purchased
-        together
+    -   each observation/row is a single basket of goods that were
+        purchased together
+    -   each column is one of 42 possible items that were purchased
 
 -   using this dataset, we will conduct an unsupervised analysis and try
     to use the attributes of each basket to identify items commonly
@@ -639,8 +640,18 @@ my_basket.h2o <- as.h2o(my_basket)
 
 -   use "GramSVD" method for numeric data ("GLRM" method can be used for
     categorical data)
+
+-   Note that PCA defaults to using Euclidean distance to create PC axes
+    and that PCA uses a linear technique
+
+-   Each PC is created by weighting all of the original column inputs
+
 -   typically, PC1 captures the most variation followed by PC2, PC3,
-    etc.
+    etc. until we reach the same number of PCs as the original number of
+    input columns
+
+    -   but we would never want to use all PCs because then we would not
+        have reduced any dimensions
 
 ```{r}
 my_pca <- h2o.prcomp(
@@ -662,6 +673,22 @@ data is mostly categorical, rather than numerical.
 
 Initially, `my_pca` contains 42 PC axes.
 
+Note how all 42 PCs add up to explain 100% of the variation.
+
+```{r}
+my_pca@model$model_summary %>% 
+  add_rownames() %>% 
+  tidyr::pivot_longer(-rowname) %>% 
+  filter(
+    rowname == "Proportion of Variance") %>% 
+  mutate(
+    pc = stringr::str_replace(name, "pc", "") %>% as.integer()) %>% 
+  ggplot(aes(x = pc, y=cumsum(value))) +
+  geom_point() + geom_line() +
+  theme(axis.text.x = element_text(angle=90, hjust = 1))  +
+  ylab("Cumulative Proportion of Variance Explained")
+```
+
 ## 22. Plot the eigenvector influence of each feature on the first principal component analysis using `geom_point()`
 
 -   assess what items most contribute to PC1
@@ -672,6 +699,9 @@ Initially, `my_pca` contains 42 PC axes.
     items that contribute to them
 
     -   for example, adult beverages contribute more to PC1 than PC2
+    -   the relative distance between groupings is more important than
+        the absolute value on the axes - one way to think about this is
+        to think about the PC1 axis in terms of absolute values
 
     ```{r}
     my_pca@model$eigenvectors %>% 
@@ -679,15 +709,17 @@ Initially, `my_pca` contains 42 PC axes.
       mutate(feature = row.names(.)) %>%
       ggplot(aes(pc1, reorder(feature, pc1))) +
       geom_point() + 
-      theme_classic()
+      theme_classic() + 
+      labs(x = "PC1", 
+           y = "Features")
     ```
 
 ## 23. **Question:** What category of grocery items contribute most to PC1? (These are related because they're bought most often together on a given grocery trip)
 
 Adult alcoholic beverages such as Bulmers and red wine most contribute
-to PC1.
+to PC1, followed by vegetables like carrots and potatoes.
 
-## 24. Plot of eigenvector influence of each feature on the first principal component PC1 using `geom_text()` 
+## 24. Plot of eigenvector influence of each feature on the first principal component PC1 using `geom_text()`
 
 ```{r}
 my_pca@model$eigenvectors %>% 
@@ -702,7 +734,10 @@ my_pca@model$eigenvectors %>%
 
 ## 25. **Question:** What category of grocery items contribute the least to PC1 but positively towards PC2?
 
-Vegetables such as leeks, broccoli, spinach, peas, and carrots contribute very little to PC1 but contribute a moderately to PC2. Similarly, breakfast items such as milk, tea, instant coffee, and muesli contribute little to PC1 but a lot to PC2.
+Items with PC1 values near zero and PC1 values far from zero contribute
+the least to PC1 and the most towards PC2. These items groups such as
+dinner items (e.g., pizza, lasagna, chicken tikka) and breakfast items
+(e.g., instant coffee, muesli, and coco pops).
 
 ## Eigenvalue criterion
 
@@ -799,14 +834,28 @@ alternative dimension reduction techniques that can take outliers into
 consideration. Finally, PCA is not very effective for high dimensional
 space with complex nonlinear patterns.
 
-## Non-metrid MultiDimensional Scaling (NMDS)
+## Non-metric MultiDimensional Scaling (NMDS)
 
 ### Unconstrained ordination on species
 
+-   unconstrained ordination: ordination of sites by species,
+    unconstrained by the environment
+
+    -   alpha (α) biodiversity: biodiversity within a site
+
+    -   beta (β) diversity: biodiversity across sites
+
 -   load species (`varespec`) and environmental chemistry (`varechem`)
     data
--   this is vegetation and environment in lichen pastures data from Vare
-    et al. (1995)
+
+    -   this is vegetation and environment in lichen pastures data from
+        Vare et al. (1995)
+
+-   The `varespecies` dataset describes the cover of species (44
+    columns) across sites (24 rows)
+
+-   the `varechem` dataset describes the soil chemistry (14 columns)
+    across the same sites (24 rows)
 
 ```{r}
 data("varespec") # species
@@ -873,6 +922,8 @@ vare.mds
 
 ## 37. Plot of sites with species text for NMDS1 and NMDS2
 
+-   shows us at which sites we are more likely to find certain species
+
 ```{r}
 plot(vare.mds, type = "t")
 ```
@@ -905,6 +956,12 @@ an improvement compared to `monoMDS()`.
 
 ## 39. Plot the fitted environmental vectors
 
+-   now we can use a linear model to overlay the vectors of the
+    environment
+
+    -   Ex. sites at the bottom are more likely to have nitrogen than
+        sites at the top
+
 -   the fitted vectors are arrows
 
     -   the arrow points in the direction of the most rapid change in
@@ -912,7 +969,7 @@ an improvement compared to `monoMDS()`.
     -   arrow length is proportional to the correlation between
         ordination and environmental variable (strength of the gradient)
 
--   p.max limits plotting to the most significant variables
+-   `p.max` argument limits plotting to the most significant variables
 
 ```{r}
 plot(vare.mds, display = "sites")
@@ -939,7 +996,10 @@ with NMDS1.
 
 -   `envfit()` uses a formula interface in which Y \~ X
 
-    -   returns a fitted GAM
+    -   returns a fitted GAM (note that before, we used linear models to
+        explain environmental variation) to draw contours between axes
+    -   the GAM gives us more detailed, curvy contours rather than just
+        linear lines perpendicular to the blue environmental vectors
 
 -   `with()` makes the dataframe visible only to the following command
 
@@ -950,36 +1010,57 @@ with NMDS1.
     variables
 
     -   aluminum is in red
-    -   calcium is in green, ranges from 300 - 800, and directs the blue Ca arrow 
-    
-- `ordisurf()` fits a GAM to the input to create a contour plot, which shows how environmental values vary across sites
-- this is part of the environmental overlay 
+    -   calcium is in green, ranges from 300 - 800, and directs the blue
+        Ca arrow
+
+-   `ordisurf()` fits a GAM to the input to create a contour plot, which
+    shows how environmental values vary across sites
+
+-   this is part of the environmental overlay
 
 ```{r}
-ef <- envfit(vare.mds ~ Al + Ca, data = varechem)
+ef <- envfit(vare.mds ~ Al + Ca, data = varechem) 
 plot(vare.mds, display = "sites")
-plot(ef)
+plot(ef) #blue vector arrows 
 
-#tmp <- with(varechem, ordisurf(vare.mds, Al, add = TRUE))
+#tmp <- with(varechem, ordisurf(vare.mds, Al, add = TRUE)) #default color is red 
 ordisurf(vare.mds ~ Ca, data=varechem, add = TRUE, col = "green4")
 ```
 
-The ordination surface plot from ordisurf() displays contours of an environmental gradient across sites. It is a more detailed look at an environmental gradient compared to the single blue line vector. 
-This environmental overlay is generated by fitting a GAM where the response is the environmental variable of interest and the predictors are a bivariate smooth of the ordination axes, all given by the formula: `Ca ~ s(NMDS1, NMDS2)` 
+The ordination surface plot from ordisurf() displays contours of an
+environmental gradient across sites. It is a more detailed look at an
+environmental gradient compared to the single blue line vector. This
+environmental overlay is generated by fitting a GAM where the response
+is the environmental variable of interest and the predictors are a
+bivariate smooth of the ordination axes, all given by the formula:
+`Ca ~ s(NMDS1, NMDS2)`
 
-(Remember each site is associated with a position on the NMDS axes and has an environmental value).  
+(Remember each site is associated with a position on the NMDS axes and
+has an environmental value).
 
-We can see from the code that the green4 color contours are for Calcium Ca. 
+We can see from the code that the green4 color contours are for Calcium
+Ca.
 
-## 42. **Updated Question:**Describe in general terms (upper/lower/left/right/middle) where the highest and lowest values are found for Ca with respect to the ordination axes NMDS1 and NMDS2 (ie the ordination axes that describe the most variation of species composition between sites).
+## 42. **Updated Question:** Describe in general terms (upper/lower/left/right/middle) where the highest and lowest values are found for Ca with respect to the ordination axes NMDS1 and NMDS2 (ie the ordination axes that describe the most variation of species composition between sites).
 
-The lowest Ca value of 350 is located in the lower left of the area while the highest value of 700 is located near the upper right corner. In other words, the lowest Ca value is found at relatively lower values of NMDS1 and NMDS2 while the highest CA value is found at higher values of NMDS1 and NMDS2. 
+The lowest Ca value of 350 is located in the lower left of the area
+while the highest value of 700 is located near the upper right corner.
+In other words, the lowest Ca value is found at relatively lower values
+of NMDS1 and NMDS2 while the highest CA value is found at higher values
+of NMDS1 and NMDS2.
 
-Calcium is most differentiated over NMDS1. 
+Calcium is most differentiated over NMDS1.
 
-## 43. **Question:** What is the difference between “constrained” versus “unconstrained” ordination within ecological context?
+## 43. **Question:** What is the difference between "constrained" versus "unconstrained" ordination within ecological context?
 
-In an ecological context, we often use unconstrained ordination on species using NMDS, overlay with environmental gradients, then constrained ordination on species and the environment using an ordination technique called canonical correspondence analysis (CCA). Thus, unconstrained ordination we find the majority of the compositional variation and relate it to observed environmental variation. In constrained ordination, we are constrained by environmental variables to explain the variation rather than trying to explain all the variation. 
+In an ecological context, we often use unconstrained ordination on
+species using NMDS, overlay with environmental gradients, then
+constrained ordination on species and the environment using an
+ordination technique called canonical correspondence analysis (CCA).
+Thus, unconstrained ordination we find the majority of the compositional
+variation and relate it to observed environmental variation. In
+constrained ordination, we are constrained by environmental variables to
+explain the variation rather than trying to explain all the variation.
 
 ## Constrained ordination on species and environment using `cca()`
 
@@ -999,7 +1080,7 @@ In an ecological context, we often use unconstrained ordination on species using
     -   sometimes there are fewer ranks than axes
 
     ```{r}
-    vare.cca <- cca(varespec ~ Al + P + K, varechem)
+    vare.cca <- cca(varespec ~ Al + P + K, varechem) #how do Al, P, and K predict the species? 
     vare.cca
     ```
 
@@ -1007,6 +1088,8 @@ In an ecological context, we often use unconstrained ordination on species using
 
 -   arrows for constraints have similar interpretation as the fitted
     vector arrows
+-   now the ordering of each row is determined by species *and*
+    environment
 
 ```{r}
 plot(vare.cca)
@@ -1014,7 +1097,8 @@ plot(vare.cca)
 
 ## 45. **Question:** What sites are most differentiated by CCA1, i.e. furthest apart along its axis, based on species composition AND the environmnent? What is the strongest environmental vector for CCA1, i.e. longest environmental vector in the direction of the CCA1 axes?
 
-Sites 28 and 4 are most differentiated by CCA1. Aluminum is the strongest environmental vector for CCA1. 
+Sites 28 and 4 are most differentiated by CCA1. Aluminum is the
+strongest environmental vector for CCA1.
 
 ## Plot in 3 dimensions using `ordiplot3d()`
 
